@@ -1,0 +1,364 @@
+<div id="tracking-app"></div>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 28px;
+    font-weight: 500;
+  }
+
+  .header p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .form-container {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .input-group input {
+    flex: 1;
+    min-width: 250px;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .input-group button {
+    padding: 12px 24px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .input-group button:hover {
+    background: #5568d3;
+  }
+
+  .input-group button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  .result-container {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .status-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .status-card .label {
+    margin: 0 0 0.5rem;
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .status-card .value {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  .timeline {
+    position: relative;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .timeline-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .timeline-content {
+    flex: 1;
+  }
+
+  .timeline-content .status {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  .timeline-content .location {
+    margin: 0 0 2px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .timeline-content .date {
+    margin: 0;
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
+  .error-box {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    color: #dc2626;
+    font-size: 14px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .help-container {
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .help-container h3 {
+    margin: 0 0 1rem;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  .help-container ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.8;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .history-header {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .history-title {
+    margin: 0 0 1.5rem;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1f2937;
+  }
+</style>
+
+<div class="container">
+  <div class="header">
+    <h1>Track Your Order</h1>
+    <p>Enter your tracking number to see your shipment status</p>
+  </div>
+
+  <form class="form-container" id="trackingForm">
+    <div class="input-group">
+      <input 
+        type="text" 
+        id="trackingNumber" 
+        placeholder="Enter tracking number (e.g. 1Z999AA10123456784)"
+        required
+      />
+      <button type="submit">Track Package</button>
+    </div>
+  </form>
+
+  <div class="error-box hidden" id="errorBox"></div>
+
+  <div class="loading hidden" id="loading">
+    <div class="spinner"></div>
+    <p>Finding your package...</p>
+  </div>
+
+  <div class="result-container hidden" id="resultContainer"></div>
+
+  <div class="help-container">
+    <h3>Need Help?</h3>
+    <ul>
+      <li>Check your order confirmation email for the tracking number</li>
+      <li>Most packages are scanned within 24 hours of shipment</li>
+      <li>International shipments may take 2-3 weeks to appear</li>
+      <li>Contact us if tracking doesn't update after 7 days</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+// ⚠️ REPLACE THIS WITH YOUR VERCEL URL
+const API_URL = 'https://YOUR-VERCEL-URL.vercel.app/api/track';
+
+const form = document.getElementById('trackingForm');
+const trackingInput = document.getElementById('trackingNumber');
+const loading = document.getElementById('loading');
+const errorBox = document.getElementById('errorBox');
+const resultContainer = document.getElementById('resultContainer');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const trackingNum = trackingInput.value.trim();
+  if (!trackingNum) {
+    showError('Please enter a tracking number');
+    return;
+  }
+
+  loading.classList.remove('hidden');
+  errorBox.classList.add('hidden');
+  resultContainer.classList.add('hidden');
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trackingNumber: trackingNum })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.found) {
+      showError('Tracking number not found. Please verify and try again.');
+      return;
+    }
+
+    displayTracking(data);
+  } catch (error) {
+    showError('Unable to fetch tracking. Please check your connection and try again.');
+    console.error(error);
+  } finally {
+    loading.classList.add('hidden');
+  }
+});
+
+function showError(msg) {
+  errorBox.textContent = msg;
+  errorBox.classList.remove('hidden');
+}
+
+function displayTracking(data) {
+  resultContainer.innerHTML = `
+    <div style="margin-bottom: 2rem;">
+      <div class="status-grid">
+        <div class="status-card">
+          <div class="label">Status</div>
+          <div class="value" style="color: ${data.statusColor}">${data.status}</div>
+        </div>
+        <div class="status-card">
+          <div class="label">Carrier</div>
+          <div class="value">${data.carrier}</div>
+        </div>
+        <div class="status-card">
+          <div class="label">Current Location</div>
+          <div class="value">${data.currentLocation}</div>
+        </div>
+        <div class="status-card">
+          <div class="label">Est. Delivery</div>
+          <div class="value">${data.estimatedDelivery}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-header">
+      <h2 class="history-title">Tracking History</h2>
+      <div class="timeline">
+        ${data.events.map((event, idx) => `
+          <div class="timeline-item">
+            <div class="timeline-marker">${event.icon}</div>
+            <div class="timeline-content">
+              <div class="status">${event.status}</div>
+              <div class="location">${event.location}</div>
+              <div class="date">${event.date}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  resultContainer.classList.remove('hidden');
+}
+</script>

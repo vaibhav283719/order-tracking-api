@@ -1,0 +1,12 @@
+{
+  "name": "order-tracking-api",
+  "version": "1.0.0",
+  "description": "Free tracking page for Shopify dropshipping",
+  "main": "api/track.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["shopify", "tracking", "dropshipping"],
+  "author": "",
+  "license": "MIT"
+}
